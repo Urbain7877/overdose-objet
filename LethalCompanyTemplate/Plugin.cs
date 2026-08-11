@@ -1,6 +1,20 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Netcode;
+
+[BepInPlugin("com.toii.overdosechaos", "Overdose Chaos", "1.0.0")]
+public class OverdoseChaosPlugin : BaseUnityPlugin
+{
+    private readonly Harmony harmony = new Harmony("com.toii.overdosechaos");
+
+    private void Awake()
+    {
+        harmony.PatchAll();
+        Logger.LogInfo("Overdose Chaos est chargé et prêt à semer la panique !");
+    }
+}
 
 [HarmonyPatch(typeof(RoundManager))]
 public class OverdoseChaosManager
@@ -36,7 +50,6 @@ public class OverdoseChaosManager
         {
             monsterTimer = 0f;
             
-            // Compte les monstres vivants actuellement et récupère la limite de la lune + 6
             int currentMonsters = Object.FindObjectsOfType<EnemyAI>().Length;
             int maxAllowedMonsters = __instance.currentLevel.maxEnemies + 6;
 
@@ -94,7 +107,6 @@ public class OverdoseChaosManager
 
         if (manager.insideAINodes == null || manager.insideAINodes.Length == 0) return;
 
-        // Force le spawn uniquement sur les nœuds intérieurs du complexe
         Vector3 randomPos = manager.GetRandomNavMeshPositionInRadius(manager.insideAINodes[Random.Range(0, manager.insideAINodes.Length)].transform.position, 10f);
 
         GameObject droppedItem = Object.Instantiate(selectedScrap.spawnableItem.spawnPrefab, randomPos, Quaternion.identity);
